@@ -1,0 +1,12 @@
+*-----------------------------------------------------
+* DB2 installation response file used by the DB2 Setup wizard
+* created: 2018-09-11 08:13
+* author: gaerfield
+*-----------------------------------------------------
+*  Product Installation
+PROD=EXPRESS_C
+LIC_AGREEMENT=ACCEPT
+INSTALL_TYPE=COMPACT
+FILE=/opt/ibm/db2/V9.7/
+LANG=EN
+

@@ -1,0 +1,36 @@
+#!/bin/bash
+# executes a restore of an Db2-Database
+# should be exectued by the Db2-Instance-Owner 'db2inst1'
+
+function log_info {
+  echo -e $(date '+%Y-%m-%d %T')"\e[1;32m $@\e[0m"
+}
+function log_error {
+  echo -e >&2 $(date +"%Y-%m-%d %T")"\e[1;31m $@\e[0m"
+}
+
+backup_file="/data/$1"
+base_path=~db2inst1
+if [ -f $backup_file ]; then
+  log_info "Entpacke $backup_file nach $base_path"
+  
+  backup_folder=$(tar xzvf $backup_file -C ~db2inst1 | egrep '^[^/]+/?$' | cut -f1 -d"/")
+  backup_path=$base_path/$backup_folder
+  chmod -R 777 "$base_path/$backup_folder"
+  log_info "restore of $DB_NAME using $backup_path (file $backup_file)"
+  log_info "this could take veeeeery loooong, get yourself a coffee."
+  # TODO insert parameters for Buffersize allowing more control over performance
+  su - db2inst1 -c "db2 UPDATE DB CFG FOR $DB_NAME USING UTIL_HEAP_SIZE 70982"
+  su - db2inst1 -c "db2 RESTORE DB $DB_NAME FROM $backup_path INTO $DB_NAME WITHOUT PROMPTING;"
+  rm -rf $backup_path
+  log_info "Restore abgeschlossen. Neustart der DB2-Instanz wird durchgeführt."
+  # reset DB-Permissions with 'db2iupdt'. Needed to be done, to prevent
+  # the failure "ROOT CAPABILITY REQUIRED" on connect to the db. 
+  su - db2inst1 -c "db2stop force"
+  db2iupdt db2inst1
+  su - db2inst1 -c "db2start"
+else
+  log_error "Restore of <$@> failed, couldn't find the file"
+  exit 1
+fi
+

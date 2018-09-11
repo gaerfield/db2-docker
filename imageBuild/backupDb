@@ -1,0 +1,42 @@
+#!/bin/bash
+# creates a Backup of the db2-Database
+# the Db2-instance-owner 'db2inst1' should execute this script
+
+function log_info {
+  echo -e $(date '+%Y-%m-%d %T')"\e[1;32m $@\e[0m"
+}
+function log_error {
+  echo -e >&2 $(date +"%Y-%m-%d %T")"\e[1;31m $@\e[0m"
+}
+
+BACKUP_FOLDER=$(date '+%F_%H-%M-%S')_$DB_NAME
+BACKUP_PATH=~db2inst1/$BACKUP_FOLDER
+log_info "backup to $BACKUP_PATH"
+mkdir -m 777 $BACKUP_PATH
+
+# TODO #1
+# After Quiesce we should shut down the DB for an offline-backup.
+# Often a Quiesce alone isn't enough.
+
+# TODO #2
+# Insert parameters for Buffer-Size here for better controlling
+# the performance of the backup
+
+su - db2inst1 -c "db2 -tvs <<EOF
+CONNECT TO $DB_NAME;
+QUIESCE DATABASE IMMEDIATE FORCE CONNECTIONS;
+CONNECT RESET;
+
+UPDATE DB CFG FOR $DB_NAME USING UTIL_HEAP_SIZE 70982
+BACKUP DB $DB_NAME TO $BACKUP_PATH COMPRESS UTIL_IMPACT_PRIORITY 50 WITHOUT PROMPTING;
+
+CONNECT TO $DB_NAME;
+UNQUIESCE DATABASE;
+CONNECT RESET;
+QUIT;
+EOF"
+
+tar czf "/data/$BACKUP_FOLDER.tar.gz" -C ~db2inst1 "$BACKUP_FOLDER"
+chmod 666 "/data/$BACKUP_FOLDER.tar.gz"
+rm -rf $BACKUP_PATH
+log_info "Backup von $DB_NAME nach /data/$BACKUP_FOLDER.tar.gz erstellt"
