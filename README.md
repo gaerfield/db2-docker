@@ -13,7 +13,7 @@ This files allow to create a container-image for [Db2](https://www.ibm.com/analy
 * execute `docker build . -t "db2:9.7"`
 
 ## running the image
-* docker-compose-file will follow
+The `docker-compose.yml`-file allows you to create a container from a local image. You have to provide an Database-Name, Database-User, Database-Password and **either** a SQL-Script for the creation of the database **or** an old backup of the database. Use the `STARTUP_MODE=[createIfNotExists|restorIfNotExists]` to set the desired bootstrap-behaviour.
 
 ## related work
 * [lresende/docker-db2express-c](https://github.com/lresende/docker-db2express-c/blob/master/docker-entrypoint.sh)

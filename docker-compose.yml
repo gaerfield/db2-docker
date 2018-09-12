@@ -1,0 +1,30 @@
+version: '2'
+services:
+  db2instance:
+    image: db2:9.7
+    privileged: true
+    ports:
+      - "58885:50000"
+    volumes:
+      ## mount both volumes '/var/ibm/db2' and '/home'
+      ## to keep the data persistent for container-rebuilds/reboots
+      - db2-inst:/var/ibm/db2
+      - db2-home:/home
+      ## the path '/data' is used for importing/exporting db2-data
+      ## the files are backups of folders '/var/ibm/db2' and '/home'
+      - ./backups:/data
+    environment:
+      - DB_NAME=MYDATABASE
+      - DB_USER=db2user
+      - DB_PASSWORD=db2password
+      ## Creates the database DB_NAME, if its not exists
+      #- STARTUP_MODE=createIfNotExists
+      #- DB_CREATE_SCRIPT=create_wdemo.sql
+      ## loads an old backup of DB_NAME, 
+      ## if the dabase DB_NAME does not exist
+      - STARTUP_MODE=restoreIfNotExists
+      - DB_BACKUP=wdemo.tar.gz
+
+volumes:
+  db2-inst:
+  db2-home:
