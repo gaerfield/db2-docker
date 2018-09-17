@@ -1,5 +1,8 @@
 FROM debian:7.6
 
+ARG INSTALLATION_FILE=db2.tar.gz
+ARG RESPONSE_FILE=db2.rsp
+
 # ENV-Variables
 ENV DB2_DATA /var/ibm/db2
 ENV DB2_HOME /opt/ibm/db2/V9.7
@@ -13,7 +16,8 @@ RUN	apt-get update \
 RUN rm -rf /var/lib/apt/lists/*
 
 # db2 express-c installation
-COPY ./db2-install/* /tmp/
+COPY $INSTALLATION_FILE /tmp/db2.tar.gz
+COPY $RESPONSE_FILE /tmp/db2.rsp
 
 RUN cd /tmp; tar xvzf db2.tar.gz \
  && /tmp/server/db2setup -u /tmp/db2.rsp \

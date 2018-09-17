@@ -1,7 +1,12 @@
 version: '2'
 services:
   db2instance:
-    image: db2:9.7
+    #image: db2:9.7
+    build:
+      context: https://github.com/gaerfield/db2-docker.git
+      args:
+        INSTALLATION_FILE: ./db2-installation-file.tar.gz
+        RESPONSE_FILE: ./mydb2.responsefile
     privileged: true
     ports:
       - "58885:50000"
