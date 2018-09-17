@@ -16,8 +16,8 @@ RUN	apt-get update \
 RUN rm -rf /var/lib/apt/lists/*
 
 # db2 express-c installation
-COPY $INSTALLATION_FILE /tmp/db2.tar.gz
-COPY $RESPONSE_FILE /tmp/db2.rsp
+ADD $INSTALLATION_FILE /tmp/db2.tar.gz
+ADD $RESPONSE_FILE /tmp/db2.rsp
 
 RUN cd /tmp; tar xvzf db2.tar.gz \
  && /tmp/server/db2setup -u /tmp/db2.rsp \
